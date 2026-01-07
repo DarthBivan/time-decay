@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3 uid="uid://c4a32bfj4yhd4"]
+
+[ext_resource type="Script" uid="uid://b0l7svsxowttf" path="res://player.gd" id="1_ig7tw"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0xm2m"]
+size = Vector2(27, 27)
+
+[node name="Main" type="Node2D"]
+
+[node name="Player" type="CharacterBody2D" parent="."]
+script = ExtResource("1_ig7tw")
+
+[node name="ColorRect" type="ColorRect" parent="Player"]
+custom_minimum_size = Vector2(20, 20)
+offset_left = -13.0
+offset_top = -13.0
+offset_right = 13.0
+offset_bottom = 15.0
+color = Color(0.007843138, 1, 1, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+position = Vector2(0.5, 1)
+shape = SubResource("RectangleShape2D_0xm2m")
+
+[node name="TimerLabel" type="Label" parent="."]
+custom_minimum_size = Vector2(50, 20)
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 60.0
+offset_bottom = 33.0
+scale = Vector2(2, 2)
+text = "0.00"
