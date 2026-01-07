@@ -1,13 +1,15 @@
-[gd_scene load_steps=9 format=3 uid="uid://c4a32bfj4yhd4"]
+[gd_scene load_steps=12 format=3 uid="uid://c4a32bfj4yhd4"]
 
 [ext_resource type="Script" uid="uid://b0l7svsxowttf" path="res://player.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://dd2el5tbxnq0m" path="res://obstacle_bar.gd" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://ci67wwh0gfouq" path="res://vertical_blade.gd" id="3_h2yge"]
+[ext_resource type="Texture2D" uid="uid://8by3pq0so7l5" path="res://Scary_Sawblade-removebg-preview.png" id="4_1bvp3"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0xm2m"]
 size = Vector2(26, 28)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ig7tw"]
-size = Vector2(200, 19)
+size = Vector2(200, 26.5)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h2yge"]
 size = Vector2(5.166667, 53.833332)
@@ -21,11 +23,18 @@ size = Vector2(67, 649)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7mycd"]
 size = Vector2(1156.5, 63)
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_1bvp3"]
+radius = 56.0803
+
 [node name="Main" type="Node2D"]
 
 [node name="Player" type="CharacterBody2D" parent="."]
 position = Vector2(500, 300)
 script = ExtResource("1_ig7tw")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+position = Vector2(0, 1)
+shape = SubResource("RectangleShape2D_0xm2m")
 
 [node name="ColorRect" type="ColorRect" parent="Player"]
 custom_minimum_size = Vector2(20, 20)
@@ -34,10 +43,6 @@ offset_top = -13.0
 offset_right = 13.0
 offset_bottom = 15.0
 color = Color(0.007843138, 1, 1, 1)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
-position = Vector2(0, 1)
-shape = SubResource("RectangleShape2D_0xm2m")
 
 [node name="TimerLabel" type="Label" parent="."]
 custom_minimum_size = Vector2(50, 20)
@@ -63,11 +68,11 @@ script = ExtResource("2_0xm2m")
 offset_left = 23.0
 offset_top = 163.0
 offset_right = 223.0
-offset_bottom = 183.0
+offset_bottom = 190.0
 color = Color(1, 0, 0, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ObstacleBar"]
-position = Vector2(123, 173)
+position = Vector2(123, 176.75)
 shape = SubResource("RectangleShape2D_ig7tw")
 
 [node name="Arena" type="StaticBody2D" parent="."]
@@ -119,3 +124,17 @@ color = Color(0.16470589, 0.18431373, 0.21176471, 1)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(578, 325)
+
+[node name="VerticalBlade" type="Node2D" parent="."]
+position = Vector2(859, 327)
+script = ExtResource("3_h2yge")
+
+[node name="BladeVisual" type="Sprite2D" parent="VerticalBlade"]
+position = Vector2(0.4999467, 0.49999368)
+scale = Vector2(0.25800017, 0.24599996)
+texture = ExtResource("4_1bvp3")
+
+[node name="KillArea" type="Area2D" parent="VerticalBlade"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="VerticalBlade/KillArea"]
+shape = SubResource("CircleShape2D_1bvp3")

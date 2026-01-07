@@ -9,15 +9,23 @@ var max_speed: float = 360.0
 # FRICTION DECAY
 # =========================
 var base_friction: float = 900.0
-var min_friction: float = 150.0
-var friction_decay_rate: float = 15.0
+var min_friction: float = 180.0
+var friction_decay_rate: float = 12.0
 
 # =========================
 # ACCELERATION DECAY
 # =========================
 var base_acceleration: float = 1200.0
-var min_acceleration: float = 300.0
-var accel_decay_rate: float = 20.0
+var min_acceleration: float = 350.0
+var accel_decay_rate: float = 16.0
+
+# =========================
+# GRAVITY DRIFT (DOWN)
+# =========================
+var gravity_dir: Vector2 = Vector2(0, 1)     # pulls DOWN
+var base_gravity_strength: float = 18.0      # gentle start
+var gravity_growth: float = 1.1               # slow ramp
+var max_gravity_strength: float = 95.0        # hard cap (prevents impossible)
 
 # =========================
 # TIME & PRESSURE
@@ -91,7 +99,7 @@ func _physics_process(delta: float) -> void:
 		base_acceleration
 	)
 	
-	# ---- MOVEMENT ----
+	# ---- MOVEMENT INPUT ----
 	if input_dir != Vector2.ZERO:
 		velocity = velocity.move_toward(
 			input_dir * max_speed,
@@ -102,6 +110,17 @@ func _physics_process(delta: float) -> void:
 			Vector2.ZERO,
 			current_friction * delta
 		)
+	
+	# ---- APPLY GRAVITY DRIFT (CAPPED) ----
+	var gravity_strength := base_gravity_strength + time_alive * gravity_growth
+	gravity_strength = min(gravity_strength, max_gravity_strength)
+	
+	var gravity_force := gravity_dir * gravity_strength
+	velocity += gravity_force * delta
+	
+	# ---- CAP MAX SPEED (CRITICAL FOR CONTROL) ----
+	if velocity.length() > max_speed:
+		velocity = velocity.normalized() * max_speed
 	
 	move_and_slide()
 	
@@ -147,19 +166,14 @@ func die() -> void:
 	
 	is_dead = true
 	
-	# INSTANT FEEDBACK
 	start_camera_shake(0.25, 10.0)
-	
-	# INSTANT HIT STOP
 	Engine.time_scale = 0.05
 	
-	# Schedule unfreeze + reset
 	get_tree().create_timer(0.05).timeout.connect(_finish_death)
 
 func _finish_death() -> void:
 	Engine.time_scale = 1.0
 	
-	# UPDATE BEST
 	if time_alive > best_time:
 		best_time = time_alive
 		update_best_label()
