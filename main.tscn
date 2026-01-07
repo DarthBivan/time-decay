@@ -30,3 +30,11 @@ offset_right = 60.0
 offset_bottom = 33.0
 scale = Vector2(2, 2)
 text = "0.00"
+
+[node name="BestLabel" type="Label" parent="."]
+offset_left = 10.0
+offset_top = 60.0
+offset_right = 85.0
+offset_bottom = 109.0
+text = "Best: 0.00
+"

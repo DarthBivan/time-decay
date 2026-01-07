@@ -24,6 +24,7 @@ var accel_decay_rate: float = 20.0
 # =========================
 var time_alive: float = 0.0
 var pressure: float = 0.0
+var best_time: float = 0.0
 
 # =========================
 # SCREEN
@@ -33,29 +34,27 @@ var screen_rect: Rect2
 # =========================
 # PLAYER SIZE (HALF)
 # =========================
-# If your square is 20x20, half is 10x10
-var half_size: Vector2 = Vector2(10, 10)
+var half_size: Vector2 = Vector2(10, 10) # adjust if you change square size
 
 # =========================
-# TIMER LABEL
+# UI REFERENCES
 # =========================
 @onready var timer_label: Label = get_parent().get_node("TimerLabel")
+@onready var best_label: Label = get_parent().get_node("BestLabel")
 
 func _ready() -> void:
 	screen_rect = get_viewport_rect()
-	
-	# start in center
-	global_position = screen_rect.size / 2
-	velocity = Vector2.ZERO
+	reset_run()
+	update_best_label()
 
 func _physics_process(delta: float) -> void:
 	# ---- TIME ----
 	time_alive += delta
 	pressure = time_alive * time_alive
 	
-	# ---- TIMER ----
+	# ---- TIMER UI ----
 	if timer_label:
-		timer_label.text = "%.2f" % time_alive
+		timer_label.text = "Time: %.2f" % time_alive
 	
 	# ---- INPUT ----
 	var input_dir: Vector2 = Vector2.ZERO
@@ -98,9 +97,9 @@ func _physics_process(delta: float) -> void:
 	
 	move_and_slide()
 	
-	# ---- EDGE = RESTART (PIXEL-PERFECT) ----
+	# ---- EDGE = DEATH ----
 	if not is_fully_inside_screen():
-		get_tree().reload_current_scene()
+		on_death()
 
 # =========================
 # STRICT EDGE CHECK
@@ -118,3 +117,25 @@ func is_fully_inside_screen() -> bool:
 		return false
 	
 	return true
+
+# =========================
+# DEATH / RESET LOGIC
+# =========================
+func on_death() -> void:
+	# update best time
+	if time_alive > best_time:
+		best_time = time_alive
+		update_best_label()
+	
+	# start new run
+	reset_run()
+
+func reset_run() -> void:
+	velocity = Vector2.ZERO
+	global_position = screen_rect.size / 2
+	time_alive = 0.0
+	pressure = 0.0
+
+func update_best_label() -> void:
+	if best_label:
+		best_label.text = "Best: %.2f" % best_time
