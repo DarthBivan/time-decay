@@ -27,23 +27,12 @@ var pressure: float = 0.0
 var best_time: float = 0.0
 
 # =========================
-# SCREEN
-# =========================
-var screen_rect: Rect2
-
-# =========================
-# PLAYER SIZE (HALF)
-# =========================
-var half_size: Vector2 = Vector2(10, 10) # adjust if you change square size
-
-# =========================
 # UI REFERENCES
 # =========================
 @onready var timer_label: Label = get_parent().get_node("TimerLabel")
 @onready var best_label: Label = get_parent().get_node("BestLabel")
 
 func _ready() -> void:
-	screen_rect = get_viewport_rect()
 	reset_run()
 	update_best_label()
 
@@ -97,44 +86,39 @@ func _physics_process(delta: float) -> void:
 	
 	move_and_slide()
 	
-	# ---- EDGE = DEATH ----
-	if not is_fully_inside_screen():
-		on_death()
-
-# =========================
-# STRICT EDGE CHECK
-# =========================
-func is_fully_inside_screen() -> bool:
-	var pos := global_position
-	
-	if pos.x - half_size.x < screen_rect.position.x:
-		return false
-	if pos.y - half_size.y < screen_rect.position.y:
-		return false
-	if pos.x + half_size.x > screen_rect.position.x + screen_rect.size.x:
-		return false
-	if pos.y + half_size.y > screen_rect.position.y + screen_rect.size.y:
-		return false
-	
-	return true
+	# ---- COLLISION CHECKS ----
+	for i in range(get_slide_collision_count()):
+		var col = get_slide_collision(i)
+		var other = col.get_collider()
+		
+		if other is StaticBody2D:
+			# wall
+			on_death()
+			return
+		
+		if other is CharacterBody2D and other != self:
+			# obstacle
+			on_death()
+			return
 
 # =========================
 # DEATH / RESET LOGIC
 # =========================
 func on_death() -> void:
-	# update best time
 	if time_alive > best_time:
 		best_time = time_alive
 		update_best_label()
 	
-	# start new run
 	reset_run()
 
 func reset_run() -> void:
 	velocity = Vector2.ZERO
-	global_position = screen_rect.size / 2
 	time_alive = 0.0
 	pressure = 0.0
+	
+	# Respawn in center of arena
+	var viewport := get_viewport_rect()
+	global_position = viewport.size / 2
 
 func update_best_label() -> void:
 	if best_label:

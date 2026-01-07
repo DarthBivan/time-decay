@@ -1,9 +1,25 @@
-[gd_scene load_steps=3 format=3 uid="uid://c4a32bfj4yhd4"]
+[gd_scene load_steps=9 format=3 uid="uid://c4a32bfj4yhd4"]
 
 [ext_resource type="Script" uid="uid://b0l7svsxowttf" path="res://player.gd" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://dd2el5tbxnq0m" path="res://obstacle_bar.gd" id="2_0xm2m"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0xm2m"]
 size = Vector2(27, 27)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ig7tw"]
+size = Vector2(202, 19)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_h2yge"]
+size = Vector2(5.166667, 53.833332)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1bvp3"]
+size = Vector2(1155, 52)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_lquwl"]
+size = Vector2(67, 649)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7mycd"]
+size = Vector2(1156.5, 63)
 
 [node name="Main" type="Node2D"]
 
@@ -24,17 +40,78 @@ shape = SubResource("RectangleShape2D_0xm2m")
 
 [node name="TimerLabel" type="Label" parent="."]
 custom_minimum_size = Vector2(50, 20)
-offset_left = 10.0
-offset_top = 10.0
-offset_right = 60.0
-offset_bottom = 33.0
+offset_left = 35.0
+offset_top = 27.0
+offset_right = 85.0
+offset_bottom = 50.0
 scale = Vector2(2, 2)
 text = "0.00"
 
 [node name="BestLabel" type="Label" parent="."]
-offset_left = 10.0
-offset_top = 60.0
-offset_right = 85.0
-offset_bottom = 109.0
+offset_left = 33.0
+offset_top = 78.0
+offset_right = 108.0
+offset_bottom = 127.0
 text = "Best: 0.00
 "
+
+[node name="ObstacleBar" type="CharacterBody2D" parent="."]
+script = ExtResource("2_0xm2m")
+
+[node name="ColorRect" type="ColorRect" parent="ObstacleBar"]
+offset_left = 23.0
+offset_top = 163.0
+offset_right = 223.0
+offset_bottom = 183.0
+color = Color(1, 0, 0, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObstacleBar"]
+position = Vector2(122, 173)
+shape = SubResource("RectangleShape2D_ig7tw")
+
+[node name="Arena" type="StaticBody2D" parent="."]
+
+[node name="WallLeft" type="CollisionShape2D" parent="Arena"]
+position = Vector2(-12.999996, 325)
+scale = Vector2(12, 12)
+shape = SubResource("RectangleShape2D_h2yge")
+
+[node name="ColorRect" type="ColorRect" parent="Arena/WallLeft"]
+offset_left = -3.083334
+offset_top = -27.0
+offset_right = 2.75
+offset_bottom = 27.333336
+color = Color(0.16470589, 0.18431373, 0.21176471, 1)
+
+[node name="WallTop" type="CollisionShape2D" parent="Arena"]
+position = Vector2(577.5, -9)
+shape = SubResource("RectangleShape2D_1bvp3")
+
+[node name="ColorRect" type="ColorRect" parent="Arena/WallTop"]
+offset_left = -579.5
+offset_top = -25.0
+offset_right = 621.5
+offset_bottom = 27.0
+color = Color(0.16470589, 0.18431373, 0.21176471, 1)
+
+[node name="WallRight" type="CollisionShape2D" parent="Arena"]
+position = Vector2(1168.5, 323.5)
+shape = SubResource("RectangleShape2D_lquwl")
+
+[node name="ColorRect" type="ColorRect" parent="Arena/WallRight"]
+offset_left = -35.5
+offset_top = -328.5
+offset_right = 34.5
+offset_bottom = 324.5
+color = Color(0.16470589, 0.18431373, 0.21176471, 1)
+
+[node name="WallBottom" type="CollisionShape2D" parent="Arena"]
+position = Vector2(577.75, 660.5)
+shape = SubResource("RectangleShape2D_7mycd")
+
+[node name="ColorRect" type="ColorRect" parent="Arena/WallBottom"]
+offset_left = -579.75
+offset_top = -30.5
+offset_right = 595.25
+offset_bottom = 32.5
+color = Color(0.16470589, 0.18431373, 0.21176471, 1)
