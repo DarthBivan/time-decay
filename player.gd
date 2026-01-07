@@ -179,7 +179,6 @@ func blink_flash():
 	for i in range(blink_count):
 		# Flash white (or red)
 		body_rect.color = Color(1, 0.2, 0.2)
-
 		
 		await get_tree().create_timer(blink_interval).timeout
 		
