@@ -22,13 +22,13 @@ var accel_decay_rate: float = 16.0
 # =========================
 # GRAVITY DRIFT (DOWN)
 # =========================
-var gravity_dir: Vector2 = Vector2(0, 1)     # pulls DOWN
-var base_gravity_strength: float = 18.0      # gentle start
-var gravity_growth: float = 1.1               # slow ramp
-var max_gravity_strength: float = 95.0        # hard cap (prevents impossible)
+var gravity_dir: Vector2 = Vector2(0, 1)
+var base_gravity_strength: float = 18.0
+var gravity_growth: float = 1.1
+var max_gravity_strength: float = 95.0
 
 # =========================
-# TIME & PRESSURE
+# TIME & SCORE
 # =========================
 var time_alive: float = 0.0
 var pressure: float = 0.0
@@ -40,6 +40,11 @@ var best_time: float = 0.0
 @onready var timer_label: Label = get_parent().get_node("TimerLabel")
 @onready var best_label: Label = get_parent().get_node("BestLabel")
 @onready var camera: Camera2D = get_parent().get_node("Camera2D")
+
+# =========================
+# PLAYER VISUAL
+# =========================
+@onready var body_rect: ColorRect = $ColorRect
 
 # =========================
 # SHAKE SETTINGS
@@ -111,14 +116,14 @@ func _physics_process(delta: float) -> void:
 			current_friction * delta
 		)
 	
-	# ---- APPLY GRAVITY DRIFT (CAPPED) ----
+	# ---- APPLY GRAVITY ----
 	var gravity_strength := base_gravity_strength + time_alive * gravity_growth
 	gravity_strength = min(gravity_strength, max_gravity_strength)
 	
 	var gravity_force := gravity_dir * gravity_strength
 	velocity += gravity_force * delta
 	
-	# ---- CAP MAX SPEED (CRITICAL FOR CONTROL) ----
+	# ---- CAP SPEED ----
 	if velocity.length() > max_speed:
 		velocity = velocity.normalized() * max_speed
 	
@@ -158,6 +163,34 @@ func start_camera_shake(time: float, strength: float) -> void:
 	shake_strength = strength
 
 # =========================
+# BLINK FLASH
+# =========================
+func blink_flash():
+	if not body_rect:
+		return
+	
+	var original_color = body_rect.color
+	
+	# Number of blinks
+	var blink_count := 5
+	# How fast each blink is
+	var blink_interval := 0.02
+	
+	for i in range(blink_count):
+		# Flash white (or red)
+		body_rect.color = Color(1, 0.2, 0.2)
+
+		
+		await get_tree().create_timer(blink_interval).timeout
+		
+		# Back to normal
+		if body_rect:
+			body_rect.color = original_color
+		
+		await get_tree().create_timer(blink_interval).timeout
+
+
+# =========================
 # DEATH
 # =========================
 func die() -> void:
@@ -166,7 +199,11 @@ func die() -> void:
 	
 	is_dead = true
 	
-	start_camera_shake(0.25, 10.0)
+	# VISUAL FEEDBACK
+	blink_flash()
+	start_camera_shake(0.06, 3.0)
+	
+	# HIT STOP
 	Engine.time_scale = 0.05
 	
 	get_tree().create_timer(0.05).timeout.connect(_finish_death)
@@ -174,6 +211,7 @@ func die() -> void:
 func _finish_death() -> void:
 	Engine.time_scale = 1.0
 	
+	# UPDATE BEST
 	if time_alive > best_time:
 		best_time = time_alive
 		update_best_label()

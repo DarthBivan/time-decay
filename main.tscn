@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://b0l7svsxowttf" path="res://player.gd" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://dd2el5tbxnq0m" path="res://obstacle_bar.gd" id="2_0xm2m"]
 [ext_resource type="Script" uid="uid://ci67wwh0gfouq" path="res://vertical_blade.gd" id="3_h2yge"]
-[ext_resource type="Texture2D" uid="uid://8by3pq0so7l5" path="res://Scary_Sawblade-removebg-preview.png" id="4_1bvp3"]
+[ext_resource type="Texture2D" uid="uid://5xbnlrdfs8bt" path="res://SAWBLADE.png" id="4_1bvp3"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0xm2m"]
 size = Vector2(26, 28)
