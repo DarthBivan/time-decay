@@ -4,10 +4,10 @@
 [ext_resource type="Script" uid="uid://dd2el5tbxnq0m" path="res://obstacle_bar.gd" id="2_0xm2m"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0xm2m"]
-size = Vector2(27, 27)
+size = Vector2(26, 28)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ig7tw"]
-size = Vector2(202, 19)
+size = Vector2(200, 19)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_h2yge"]
 size = Vector2(5.166667, 53.833332)
@@ -24,6 +24,7 @@ size = Vector2(1156.5, 63)
 [node name="Main" type="Node2D"]
 
 [node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(500, 300)
 script = ExtResource("1_ig7tw")
 
 [node name="ColorRect" type="ColorRect" parent="Player"]
@@ -35,7 +36,7 @@ offset_bottom = 15.0
 color = Color(0.007843138, 1, 1, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
-position = Vector2(0.5, 1)
+position = Vector2(0, 1)
 shape = SubResource("RectangleShape2D_0xm2m")
 
 [node name="TimerLabel" type="Label" parent="."]
@@ -66,7 +67,7 @@ offset_bottom = 183.0
 color = Color(1, 0, 0, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ObstacleBar"]
-position = Vector2(122, 173)
+position = Vector2(123, 173)
 shape = SubResource("RectangleShape2D_ig7tw")
 
 [node name="Arena" type="StaticBody2D" parent="."]
@@ -77,10 +78,10 @@ scale = Vector2(12, 12)
 shape = SubResource("RectangleShape2D_h2yge")
 
 [node name="ColorRect" type="ColorRect" parent="Arena/WallLeft"]
-offset_left = -3.083334
-offset_top = -27.0
-offset_right = 2.75
-offset_bottom = 27.333336
+offset_left = -3.2500002
+offset_top = -30.0
+offset_right = 2.5833337
+offset_bottom = 30.750004
 color = Color(0.16470589, 0.18431373, 0.21176471, 1)
 
 [node name="WallTop" type="CollisionShape2D" parent="Arena"]
@@ -89,8 +90,8 @@ shape = SubResource("RectangleShape2D_1bvp3")
 
 [node name="ColorRect" type="ColorRect" parent="Arena/WallTop"]
 offset_left = -579.5
-offset_top = -25.0
-offset_right = 621.5
+offset_top = -26.0
+offset_right = 625.5
 offset_bottom = 27.0
 color = Color(0.16470589, 0.18431373, 0.21176471, 1)
 
@@ -110,8 +111,11 @@ position = Vector2(577.75, 660.5)
 shape = SubResource("RectangleShape2D_7mycd")
 
 [node name="ColorRect" type="ColorRect" parent="Arena/WallBottom"]
-offset_left = -579.75
-offset_top = -30.5
-offset_right = 595.25
-offset_bottom = 32.5
+offset_left = -578.75
+offset_top = -33.5
+offset_right = 626.25
+offset_bottom = 33.5
 color = Color(0.16470589, 0.18431373, 0.21176471, 1)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(578, 325)

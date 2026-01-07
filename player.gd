@@ -31,12 +31,31 @@ var best_time: float = 0.0
 # =========================
 @onready var timer_label: Label = get_parent().get_node("TimerLabel")
 @onready var best_label: Label = get_parent().get_node("BestLabel")
+@onready var camera: Camera2D = get_parent().get_node("Camera2D")
+
+# =========================
+# SHAKE SETTINGS
+# =========================
+var shake_time: float = 0.0
+var shake_strength: float = 0.0
+
+# =========================
+# STATE
+# =========================
+var is_dead: bool = false
 
 func _ready() -> void:
 	reset_run()
 	update_best_label()
 
 func _physics_process(delta: float) -> void:
+	if is_dead:
+		update_camera_shake(delta)
+		return
+	
+	# ---- CAMERA SHAKE UPDATE ----
+	update_camera_shake(delta)
+	
 	# ---- TIME ----
 	time_alive += delta
 	pressure = time_alive * time_alive
@@ -92,31 +111,70 @@ func _physics_process(delta: float) -> void:
 		var other = col.get_collider()
 		
 		if other is StaticBody2D:
-			# wall
-			on_death()
+			die()
 			return
 		
 		if other is CharacterBody2D and other != self:
-			# obstacle
-			on_death()
+			die()
 			return
 
 # =========================
-# DEATH / RESET LOGIC
+# CAMERA SHAKE
 # =========================
-func on_death() -> void:
+func update_camera_shake(delta: float) -> void:
+	if shake_time > 0:
+		shake_time -= delta
+		
+		var offset = Vector2(
+			randf_range(-1, 1),
+			randf_range(-1, 1)
+		) * shake_strength
+		
+		camera.offset = offset
+	else:
+		camera.offset = Vector2.ZERO
+
+func start_camera_shake(time: float, strength: float) -> void:
+	shake_time = time
+	shake_strength = strength
+
+# =========================
+# DEATH
+# =========================
+func die() -> void:
+	if is_dead:
+		return
+	
+	is_dead = true
+	
+	# INSTANT FEEDBACK
+	start_camera_shake(0.25, 10.0)
+	
+	# INSTANT HIT STOP
+	Engine.time_scale = 0.05
+	
+	# Schedule unfreeze + reset
+	get_tree().create_timer(0.05).timeout.connect(_finish_death)
+
+func _finish_death() -> void:
+	Engine.time_scale = 1.0
+	
+	# UPDATE BEST
 	if time_alive > best_time:
 		best_time = time_alive
 		update_best_label()
 	
 	reset_run()
+	is_dead = false
 
+# =========================
+# RESET
+# =========================
 func reset_run() -> void:
 	velocity = Vector2.ZERO
 	time_alive = 0.0
 	pressure = 0.0
 	
-	# Respawn in center of arena
 	var viewport := get_viewport_rect()
 	global_position = viewport.size / 2
 
