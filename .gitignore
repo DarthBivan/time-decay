@@ -1,5 +1,24 @@
-.import/
+# Godot 4+ specific ignores
 .godot/
-*.tmp
-*.bak
-*.log
+*.translation
+
+# Imported assets (Godot auto-generates these, we don't need them in Git)
+*.import
+
+# Optional: Ignore the .uid files if you find them annoying in GitHub
+# (Note: Godot 4 uses these to track files if you move them. Keeping them is safer, 
+# but if your OCD hates seeing them on GitHub, uncomment the line below)
+# *.uid
+
+# Exported game builds (Don't upload your .exe to the source code repo!)
+export_presets.cfg
+/Builds/
+/Exports/
+*.exe
+*.apk
+*.aab
+*.pck
+
+# OS generated files
+.DS_Store
+Thumbs.db
