@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://bew2pjqfkisjp"]
+
+[ext_resource type="Script" uid="uid://ci67wwh0gfouq" path="res://vertical_blade.gd" id="1_3gmkj"]
+[ext_resource type="Texture2D" uid="uid://5xbnlrdfs8bt" path="res://Hazard Assets/SAWBLADE.png" id="2_sausi"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1bvp3"]
+radius = 56.0803
+
+[node name="VerticalBlade" type="Node2D" unique_id=418568273]
+script = ExtResource("1_3gmkj")
+
+[node name="BladeVisual" type="Sprite2D" parent="." unique_id=157258003]
+position = Vector2(0.4999467, 0.49999368)
+scale = Vector2(0.25800017, 0.24599996)
+texture = ExtResource("2_sausi")
+
+[node name="KillArea" type="Area2D" parent="." unique_id=906918720]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KillArea" unique_id=1201863814]
+shape = SubResource("CircleShape2D_1bvp3")
+
+[connection signal="body_entered" from="KillArea" to="." method="_on_kill_area_body_entered"]

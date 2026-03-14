@@ -1,67 +1,70 @@
 extends Node2D
 
-@onready var kill_area: Area2D = $KillArea
-@onready var blade_visual: Sprite2D = $BladeVisual
+var speed := 300.0
+var velocity := Vector2.ZERO
 
-# =========================
-# MOVEMENT (GAMEPLAY)
-# =========================
-var speed: float = 140.0          # UP/DOWN speed (DO NOT SCALE)
-var direction: int = 1            # 1 = down, -1 = up
+# THE I-FRAME TOGGLE
+var is_armed := false 
 
-# =========================
-# SPIN (VISUAL ONLY)
-# =========================
-var base_spin_speed: float = 1.5   # very slow at start
-var spin_growth: float = 0.12      # how fast spin ramps up
-var max_spin_speed: float = 12.0   # visual cap
+@onready var blade_visual = $BladeVisual
 
-# =========================
-# LIMITS
-# =========================
-var min_y: float
-var max_y: float
-
-# Reference to player (to read time_alive)
-var player: Node = null
-
-func _ready() -> void:
-	var viewport := get_viewport_rect()
+func _ready():
+	# Pick a random downward diagonal angle to start dropping in
+	var random_angle = randf_range(PI/4, 3*PI/4)
+	velocity = Vector2.RIGHT.rotated(random_angle) * speed
 	
-	min_y = 60
-	max_y = viewport.size.y - 60
+	# Start the blink sequence!
+	arm_blade()
 
-	# Find player
-	player = get_parent().get_node("Player")
+func _physics_process(delta):
+	# Move the whole package
+	global_position += velocity * delta
+	
+	# Make the sawblade actually spin!
+	if blade_visual:
+		blade_visual.rotation += 15.0 * delta
+	
+	# ==========================================
+	# BOUNCE LOGIC
+	# ==========================================
+	var screen_size = get_viewport_rect().size
+	var padding = 40.0 # Adjust this based on your blade's visual size
+	
+	if global_position.x < padding or global_position.x > screen_size.x - padding:
+		velocity.x = -velocity.x
+		global_position.x = clamp(global_position.x, padding, screen_size.x - padding)
+		
+	if global_position.y < padding or global_position.y > screen_size.y - padding:
+		velocity.y = -velocity.y
+		global_position.y = clamp(global_position.y, padding, screen_size.y - padding)
 
-	# Connect kill signal
-	kill_area.body_entered.connect(_on_kill_area_body_entered)
 
-func _process(delta: float) -> void:
-	# ---- MOVE UP / DOWN (CONSTANT SPEED) ----
-	position.y += speed * direction * delta
+# ==========================================
+# SPAWN I-FRAMES & BLINK
+# ==========================================
+func arm_blade():
+	is_armed = false
 	
-	if position.y < min_y:
-		position.y = min_y
-		direction = 1
-	elif position.y > max_y:
-		position.y = max_y
-		direction = -1
-	
-	# ---- COMPUTE SPIN SPEED FROM TIME ----
-	var t: float = 0.0
-	if player and "time_alive" in player:
-		t = player.time_alive
-	
-	var spin_speed := base_spin_speed + t * spin_growth
-	spin_speed = min(spin_speed, max_spin_speed)
-	
-	# ---- SPIN VISUAL ONLY ----
-	blade_visual.rotation += spin_speed * delta
+	# Flash transparent 5 times (takes about 1.5 seconds)
+	for i in range(5):
+		modulate.a = 0.3 # Ghost mode
+		await get_tree().create_timer(0.15).timeout
+		modulate.a = 1.0 # Solid mode
+		await get_tree().create_timer(0.15).timeout
+		
+	# The grace period is over. It is now deadly.
+	is_armed = true
+	modulate.a = 1.0 
 
-# =========================
-# KILL PLAYER
-# =========================
-func _on_kill_area_body_entered(body: Node) -> void:
-	if body.name == "Player":
+
+# ==========================================
+# KILL THE PLAYER
+# ==========================================
+func _on_kill_area_body_entered(body):
+	# If we are still blinking, ignore the collision completely!
+	if not is_armed:
+		return 
+		
+	# If it's the player and we are armed, kill them
+	if body.name == "Player" and body.has_method("die"):
 		body.die()
