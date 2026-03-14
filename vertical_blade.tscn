@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bew2pjqfkisjp"]
 
-[ext_resource type="Script" uid="uid://ci67wwh0gfouq" path="res://vertical_blade.gd" id="1_3gmkj"]
+[ext_resource type="Script" uid="uid://ci67wwh0gfouq" path="res://Scripts/vertical_blade.gd" id="1_3gmkj"]
 [ext_resource type="Texture2D" uid="uid://5xbnlrdfs8bt" path="res://Hazard Assets/SAWBLADE.png" id="2_sausi"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1bvp3"]
