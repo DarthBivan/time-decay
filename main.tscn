@@ -17,6 +17,9 @@ point_count = 2
 [sub_resource type="Gradient" id="Gradient_272bh"]
 colors = PackedColorArray(0.120000005, 0.31066668, 1, 0, 0.12156863, 0.31764707, 1, 1)
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_7mycd"]
+radius = 40.0
+
 [sub_resource type="LabelSettings" id="LabelSettings_5vw27"]
 font = ExtResource("5_7mycd")
 font_size = 72
@@ -62,6 +65,11 @@ joint_mode = 2
 begin_cap_mode = 2
 end_cap_mode = 2
 
+[node name="GrazeArea" type="Area2D" parent="Player" unique_id=1605112132]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player/GrazeArea" unique_id=394615313]
+shape = SubResource("CircleShape2D_7mycd")
+
 [node name="TimerLabel" type="Label" parent="." unique_id=711761967]
 custom_minimum_size = Vector2(50, 20)
 offset_left = 35.0
@@ -80,7 +88,7 @@ text = "Best: 0.00
 "
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=625413921]
-position = Vector2(578, 325)
+position = Vector2(580, 327)
 
 [node name="DeathScreen" type="CanvasLayer" parent="." unique_id=1843306804]
 visible = false
@@ -154,3 +162,5 @@ vertical_alignment = 1
 [node name="HazardSpawner" type="Node" parent="." unique_id=873164253]
 script = ExtResource("5_lquwl")
 blade_scene = ExtResource("6_7mycd")
+
+[connection signal="area_entered" from="Player/GrazeArea" to="Player" method="_on_graze_area_area_entered"]

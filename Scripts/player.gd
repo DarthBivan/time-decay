@@ -18,11 +18,8 @@ var accel_decay_rate := 16.0
 var dash_force := 820.0
 var dash_cooldown := 1.2
 var dash_timer := 0.0
-
-# We now use ONE timer for the whole dash. While this is > 0, you are invincible.
 var dash_state_time := 0.40 
 var dash_state_timer := 0.0 
-
 var bounce_iframe_time := 0.30 
 
 # =========================
@@ -39,20 +36,14 @@ var is_dead := false
 @onready var game_manager = $"../GameManager"
 
 var camera: Camera2D = null
-
-# =========================
-# CAMERA SHAKE
-# =========================
 var shake_time := 0.0
 var shake_strength := 0.0
-
 
 func _ready():
 	trail.top_level = true 
 	if get_parent().has_node("Camera2D"):
 		camera = get_parent().get_node("Camera2D")
 	reset_player()
-
 
 func _physics_process(delta):
 	dash_timer -= delta
@@ -85,17 +76,8 @@ func _physics_process(delta):
 		dash_flash()
 
 	# CONTROL DECAY
-	var current_friction = clampf(
-		base_friction - game_manager.pressure * friction_decay_rate * 0.02,
-		min_friction,
-		base_friction
-	)
-
-	var current_accel = clampf(
-		base_acceleration - game_manager.pressure * accel_decay_rate * 0.015,
-		min_acceleration,
-		base_acceleration
-	)
+	var current_friction = clampf(base_friction - game_manager.pressure * friction_decay_rate * 0.02, min_friction, base_friction)
+	var current_accel = clampf(base_acceleration - game_manager.pressure * accel_decay_rate * 0.015, min_acceleration, base_acceleration)
 
 	# SPRINT LOGIC
 	var active_max_speed = base_max_speed
@@ -105,25 +87,19 @@ func _physics_process(delta):
 	# MOVEMENT & TURNAROUND BOOST
 	if input_dir != Vector2.ZERO:
 		var applied_accel = current_accel
-		
-		# If we are moving, and our input is fighting our current direction...
 		if velocity.length() > 50.0 and velocity.normalized().dot(input_dir) < 0:
-			applied_accel = current_accel * 4.0 # Turn 4x faster!
-			
+			applied_accel = current_accel * 4.0 
 		velocity = velocity.move_toward(input_dir * active_max_speed, applied_accel * delta)
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, current_friction * delta)
 		
-	# Keep track of our facing direction
 	if velocity.length() > 10.0:
 		last_move_dir = velocity.normalized()
 
 	# SPEED CAP & DASH DRAG 
 	var dash_cap = base_max_speed * 2.2
-	
 	if velocity.length() > active_max_speed and dash_state_timer <= 0:
 		velocity = velocity.move_toward(velocity.normalized() * active_max_speed, 1800.0 * delta)
-		
 	if velocity.length() > dash_cap:
 		velocity = velocity.normalized() * dash_cap
 
@@ -141,22 +117,12 @@ func _physics_process(delta):
 	if hit_left or hit_right or hit_top or hit_bottom:
 		if dash_state_timer > 0: 
 			var bounced = false
-			
-			if hit_left: 
-				velocity.x = abs(velocity.x)
-				bounced = true
-			if hit_right: 
-				velocity.x = -abs(velocity.x)
-				bounced = true
-			if hit_top: 
-				velocity.y = abs(velocity.y)
-				bounced = true
-			if hit_bottom: 
-				velocity.y = -abs(velocity.y)
-				bounced = true
+			if hit_left: velocity.x = abs(velocity.x); bounced = true
+			if hit_right: velocity.x = -abs(velocity.x); bounced = true
+			if hit_top: velocity.y = abs(velocity.y); bounced = true
+			if hit_bottom: velocity.y = -abs(velocity.y); bounced = true
 				
 			if bounced:
-				# Give them a little extra i-frame safety after a wall bounce
 				dash_state_timer = max(dash_state_timer, bounce_iframe_time)
 		else:
 			die()
@@ -164,14 +130,12 @@ func _physics_process(delta):
 	global_position.x = clamp(global_position.x, padding, screen_size.x - padding)
 	global_position.y = clamp(global_position.y, padding, screen_size.y - padding)
 
-	# TRAIL (Clean Line2D, spawning from the back)
+	# TRAIL
 	var player_radius = 20.0 
 	var trail_spawn_point = global_position - (last_move_dir * player_radius)
-	
 	trail.add_point(trail_spawn_point)
 	if trail.points.size() > 25:
 		trail.remove_point(0)
-
 
 func dash_flash():
 	body_rect.color = Color(0.7, 0.9, 1)
@@ -199,22 +163,51 @@ func blink_flash():
 		await get_tree().create_timer(0.04).timeout
 
 func die():
-	# If we are in the dash state, we are invincible! Ignore the death call.
 	if dash_state_timer > 0 or is_dead:
 		return
-
 	is_dead = true
-
 	blink_flash()
 	start_camera_shake(0.06, 3)
-
 	Engine.time_scale = 0.05
 	await get_tree().create_timer(0.05).timeout
 	Engine.time_scale = 1.0
-
 	game_manager.handle_player_death()
 
 func reset_player():
 	velocity = Vector2.ZERO
 	global_position = get_viewport_rect().size / 2
 	trail.clear_points()
+
+# =========================
+# GRAZE SYSTEM
+# =========================
+func _on_graze_area_area_entered(area):
+	# Make sure it's the blade's kill zone, and we aren't dead
+	if area.name == "KillArea" and not is_dead:
+		
+		# Calculate score: Starts at 50, scales up to 250 as time passes
+		var graze_points = int(50 + (game_manager.pressure * 200))
+		if graze_points > 250:
+			graze_points = 250
+			
+		# Call the magic text function
+		spawn_floating_text("+" + str(graze_points))
+
+func spawn_floating_text(text_to_show):
+	var label = Label.new()
+	label.text = text_to_show
+	
+	# Make it neon green
+	label.add_theme_color_override("font_color", Color(0.2, 1.0, 0.2))
+	label.add_theme_font_size_override("font_size", 24)
+	
+	# Position it above the player
+	label.global_position = global_position + Vector2(-20, -40)
+	
+	get_parent().add_child(label)
+	
+	# Animate it floating UP and fading OUT
+	var tween = get_tree().create_tween()
+	tween.tween_property(label, "global_position", label.global_position + Vector2(0, -50), 0.6).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(label, "modulate:a", 0.0, 0.6)
+	tween.tween_callback(label.queue_free)
